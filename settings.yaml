@@ -47,7 +47,8 @@ ui:
   delete_all_files_button_enabled: true
 
 llm:
-  mode: llamacpp
+  mode: openai
+  image_to_text_mode: gemini
   prompt_style: "llama3"
   # Should be matching the selected model
   max_new_tokens: 512
@@ -98,7 +99,7 @@ huggingface:
   trust_remote_code: true
 
 vectorstore:
-  database: qdrant
+  database: postgres
 
 nodestore:
   database: simple
@@ -146,7 +147,7 @@ azopenai:
   embedding_model: text-embedding-ada-002
   llm_model: gpt-35-turbo
 
-gemini:
+gemini:  
   api_key: ${GOOGLE_API_KEY:}
-  model: models/gemini-pro
-  embedding_model: models/embedding-001
+  model: models/gemini-1.5-flash-002
+  embedding_model: models/text-embedding-004

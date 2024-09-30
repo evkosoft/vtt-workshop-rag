@@ -6,6 +6,7 @@ llm:
 
 embedding:
   mode: openai
+  embed_dim: 1536
 
 openai:
   api_key: ${OPENAI_API_KEY:}

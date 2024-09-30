@@ -5,6 +5,8 @@ from llama_index.core.readers import StringIterableReader
 from llama_index.core.readers.base import BaseReader
 from llama_index.core.readers.json import JSONReader
 from llama_index.core.schema import Document
+from private_gpt.components.ingest.image_vision_llm_reader import ImageVisionLLMReader
+
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +20,7 @@ def _try_loading_included_file_formats() -> dict[str, type[BaseReader]]:
             PDFReader,
         )
         from llama_index.readers.file.epub import EpubReader  # type: ignore
-        from llama_index.readers.file.image import ImageReader  # type: ignore
+        from llama_index.readers.file.image import ImageReader   # type: ignore
         from llama_index.readers.file.ipynb import IPYNBReader  # type: ignore
         from llama_index.readers.file.markdown import MarkdownReader  # type: ignore
         from llama_index.readers.file.mbox import MboxReader  # type: ignore
@@ -37,9 +39,9 @@ def _try_loading_included_file_formats() -> dict[str, type[BaseReader]]:
         ".pptx": PptxReader,
         ".ppt": PptxReader,
         ".pptm": PptxReader,
-        ".jpg": ImageReader,
-        ".png": ImageReader,
-        ".jpeg": ImageReader,
+        ".jpg": ImageVisionLLMReader,
+        ".png": ImageVisionLLMReader,
+        ".jpeg": ImageVisionLLMReader,
         ".mp3": VideoAudioReader,
         ".mp4": VideoAudioReader,
         ".csv": PandasCSVReader,
@@ -108,4 +110,4 @@ class IngestionHelper:
             # We don't want the Embeddings search to receive this metadata
             document.excluded_embed_metadata_keys = ["doc_id"]
             # We don't want the LLM to receive these metadata in the context
-            document.excluded_llm_metadata_keys = ["file_name", "doc_id", "page_label"]
+            document.excluded_llm_metadata_keys = ["file_name", "doc_id", "page_label", "file_path", "short_description"]

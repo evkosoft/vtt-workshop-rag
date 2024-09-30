@@ -18,8 +18,9 @@ from private_gpt.server.ingest.ingest_router import ingest_router
 from private_gpt.server.recipes.summarize.summarize_router import summarize_router
 from private_gpt.settings.settings import Settings
 
-logger = logging.getLogger(__name__)
-
+def setup_logging(settings: Settings):
+    logging.basicConfig(level=settings.server.log_level)
+    return logging.getLogger(__name__)
 
 def create_app(root_injector: Injector) -> FastAPI:
 
@@ -43,6 +44,8 @@ def create_app(root_injector: Injector) -> FastAPI:
         LlamaIndexSettings.callback_manager = CallbackManager([global_handler])
 
     settings = root_injector.get(Settings)
+    logger = setup_logging(settings)
+
     if settings.server.cors.enabled:
         logger.debug("Setting up CORS middleware")
         app.add_middleware(

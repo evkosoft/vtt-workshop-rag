@@ -92,6 +92,10 @@ class ServerSettings(BaseModel):
         description="Authentication configuration",
         default_factory=lambda: AuthSettings(enabled=False, secret="secret-key"),
     )
+    log_level: str = Field(
+        "INFO",
+        description="The log level for the server. Valid values are: DEBUG, INFO, WARNING, ERROR, CRITICAL.",
+    )
 
 
 class DataSettings(BaseModel):
@@ -114,6 +118,10 @@ class LLMSettings(BaseModel):
         "sagemaker",
         "mock",
         "ollama",
+        "gemini",
+    ]
+    image_to_text_mode: Literal[
+        "openai", 
         "gemini",
     ]
     max_new_tokens: int = Field(
@@ -193,7 +201,6 @@ class HuggingFaceSettings(BaseModel):
         False,
         description="If set to True, the code from the remote model will be trusted and executed.",
     )
-
 
 class EmbeddingSettings(BaseModel):
     mode: Literal[
