@@ -9,6 +9,7 @@ from private_gpt.server.utils.auth import authenticated
 generate_router = APIRouter(prefix="/v1/generate", dependencies=[Depends(authenticated)])
 
 SYSTEM_PROMPT = """You will take the user input and output the best possible description for an artist to generate an image from your description. 
+    The image should first and foremost represent what is stated in the 'USER_PROMPT' field, with some added details from the context.
     Give some details but keep it evocative. Do not use the word "or" for description. For the background, choose only one description 
     that best captures the mood of the input. Only provide the whole description as one paragraph and no other metadata."""
 
@@ -31,7 +32,7 @@ def generate_image(request: Request, input: ImagenInput) :
     service: GenerateService = request.state.injector.get(GenerateService)
     
     # First do a text completion
-    body= CompletionsBody(prompt = input.prompt,
+    body= CompletionsBody(prompt = f'USER_PROMPT:"""{input.prompt}"""',
                           system_prompt = SYSTEM_PROMPT, 
                           use_context = True,
                           stream = False)
@@ -40,12 +41,11 @@ def generate_image(request: Request, input: ImagenInput) :
     openai_completion: OpenAICompletion = prompt_completion(request, body)    
 
     # Validate the OpenAICompletion object
-    image_description = _get_image_desc(openai_completion)
+    image_description, rag = _get_image_desc(openai_completion)    
     
-    if not image_description:
-        raise ValueError("Extracted image description is empty")
-    
-    return service.generate_image(image_description)    
+    result = service.generate_image(image_description)
+    result['rag'] = rag
+    return result
 
 
 
@@ -68,6 +68,7 @@ def _get_image_desc(openai_completion):
     
     # Extract the content
     image_description = first_choice.message.content.strip()
-    return image_description
+    rag = len(first_choice.sources) > 0
+    return image_description, rag
 
     

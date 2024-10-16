@@ -93,7 +93,7 @@ class ServerSettings(BaseModel):
         default_factory=lambda: AuthSettings(enabled=False, secret="secret-key"),
     )
     log_level: str = Field(
-        "INFO",
+        "DEBUG",
         description="The log level for the server. Valid values are: DEBUG, INFO, WARNING, ERROR, CRITICAL.",
     )
 
@@ -141,7 +141,7 @@ class LLMSettings(BaseModel):
         "gpt-3.5-turbo LLM.",
     )
     temperature: float = Field(
-        0.1,
+        0.5,
         description="The temperature of the model. Increasing the temperature will make the model answer more creatively. A value of 0.1 would be more factual.",
     )
     prompt_style: Literal["default", "llama2", "llama3", "tag", "mistral", "chatml"] = (
@@ -408,7 +408,8 @@ class RagSettings(BaseModel):
         description="This value controls the number of documents returned by the RAG pipeline or considered for reranking if enabled.",
     )
     similarity_value: float = Field(
-        None,
+        0.75,
+        #None,
         description="If set, any documents retrieved from the RAG must meet a certain match score. Acceptable values are between 0 and 1.",
     )
     rerank: RerankSettings

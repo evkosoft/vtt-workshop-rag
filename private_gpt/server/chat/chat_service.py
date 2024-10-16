@@ -213,5 +213,14 @@ class ChatService:
             chat_history=chat_history,
         )
         sources = [Chunk.from_node(node) for node in wrapped_response.source_nodes]
+
+        if(len(sources) == 0):
+             # There were no retrieved chunks, so query for image description with simple chat
+            chat_engine = self._chat_engine(system_prompt=system_prompt)
+            wrapped_response = chat_engine.chat(
+               message=last_message if last_message is not None else "",
+               chat_history=chat_history,
+            )
+
         completion = Completion(response=wrapped_response.response, sources=sources)
         return completion

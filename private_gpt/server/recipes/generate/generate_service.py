@@ -12,7 +12,7 @@ class GenerateService:
         self.settings = settings
 
     def generate_image(self, image_desc: str) -> Any:
-
+        
         # Temporary : use FLUX.1[schnell] for image gen
         handler = fal_client.submit(
             #"fal-ai/flux/schnell",
@@ -20,9 +20,11 @@ class GenerateService:
             arguments={
                 "prompt": image_desc,
                 "image_size": "landscape_4_3",  # square, square_hd
+                "safety_tolerance": "2",
+                "enable_safety_checker": False,
                 "sync_mode": True       # TB modified !!
             },
         )
 
-        result = handler.get()
+        result = handler.get()        
         return result
