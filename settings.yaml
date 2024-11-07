@@ -60,7 +60,7 @@ llm:
 rag:
   similarity_top_k: 2
   #This value controls how many "top" documents the RAG returns to use in the context.
-  #similarity_value: 0.45
+  similarity_value: 0.75
   #This value is disabled by default.  If you enable this settings, the RAG will only use articles that meet a certain percentage score.
   rerank:
     enabled: false
@@ -113,11 +113,11 @@ qdrant:
   path: local_data/private_gpt/qdrant
 
 postgres:
-  host: localhost
-  port: 5432
-  database: postgres
-  user: postgres
-  password: postgres
+  host: ${DATABASE_HOST:localhost}
+  port: ${DATABASE_PORT:5432}
+  database: ${DATABASE_NAME:postgres}
+  user: ${DATABASE_USER:postgres}
+  password: ${DATABASE_PASSWORD:postgres}
   schema_name: private_gpt
 
 sagemaker:
