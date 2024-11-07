@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from private_gpt.open_ai.openai_models import OpenAICompletion
 from private_gpt.server.completions.completions_router import CompletionsBody, prompt_completion
 from private_gpt.server.recipes.generate.generate_service import GenerateService
@@ -27,8 +27,12 @@ class ImagenResponse(BaseModel):
     responses={200: {"model": ImagenResponse}},
     tags=["Recipes"],
 )
-def generate_image(request: Request, input: ImagenInput) :
-    """Generate an image based on the provided input."""
+def generate_image(request: Request, input: ImagenInput, background_tasks: BackgroundTasks) :
+    """
+    Generate an image based on the provided input.
+    This will return an image generation job, but maybe not the generated image itself.
+    The generated image will be returned in a background task.
+    """
     service: GenerateService = request.state.injector.get(GenerateService)
     
     # First do a text completion
@@ -42,12 +46,12 @@ def generate_image(request: Request, input: ImagenInput) :
 
     # Validate the OpenAICompletion object
     image_description, rag = _get_image_desc(openai_completion)    
-    
-    result = service.generate_image(image_description)
+        
+    result = service.generate_image_using_leonardo(image_description)
+    if len(result['generated_images']) == 0:        
+        background_tasks.add_task(service.poll_for_generated_images, result['id'])
     result['rag'] = rag
     return result
-
-
 
 def _get_image_desc(openai_completion):
     if not openai_completion:

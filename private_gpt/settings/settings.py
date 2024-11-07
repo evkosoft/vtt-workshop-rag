@@ -123,7 +123,7 @@ class LLMSettings(BaseModel):
     image_to_text_mode: Literal[
         "openai", 
         "gemini",
-    ]
+    ]    
     max_new_tokens: int = Field(
         256,
         description="The maximum number of token that the LLM is authorized to generate in one completion.",
@@ -259,6 +259,10 @@ class OpenAISettings(BaseModel):
     model: str = Field(
         "gpt-3.5-turbo",
         description="OpenAI Model to use. Example: 'gpt-4'.",
+    ),
+    vision_model: str = Field(
+        "gpt-4o-mini",
+        description="OpenAI Model to use. Example: 'gpt-4o-mini'.",
     )
     request_timeout: float = Field(
         120.0,
@@ -594,6 +598,23 @@ class MilvusSettings(BaseModel):
         True, description="Overwrite the previous collection schema if it exists."
     )
 
+class ImageGenerationSettings(BaseModel):
+    leo_api_key: str | None = Field(
+        None,
+        description="The Leonardo AI API key to use for image generation.",
+    )
+    leo_model_id: str | None = Field(
+        None,
+        description="The Leonardo AI model ID to use for image generation.",
+    )
+    leo_preset_style: str | None = Field(
+        None,
+        description="The Leonardo AI style to use for image generation.",
+    )
+    vtt_webhook_url: str | None = Field(
+        None,
+        description="The URL to send VTT images to.",
+    )
 
 class Settings(BaseModel):
     server: ServerSettings
@@ -616,7 +637,7 @@ class Settings(BaseModel):
     postgres: PostgresSettings | None = None
     clickhouse: ClickHouseSettings | None = None
     milvus: MilvusSettings | None = None
-
+    imagegen: ImageGenerationSettings
 
 """
 This is visible just for DI or testing purposes.

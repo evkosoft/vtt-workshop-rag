@@ -5,7 +5,8 @@ from llama_index.core.readers import StringIterableReader
 from llama_index.core.readers.base import BaseReader
 from llama_index.core.readers.json import JSONReader
 from llama_index.core.schema import Document
-from private_gpt.components.ingest.image_vision_llm_reader import ImageVisionLLMReader
+
+from private_gpt.components.ingest.image_vision_openai_reader import ImageVisionOpenAIReader
 
 
 logger = logging.getLogger(__name__)
@@ -39,9 +40,9 @@ def _try_loading_included_file_formats() -> dict[str, type[BaseReader]]:
         ".pptx": PptxReader,
         ".ppt": PptxReader,
         ".pptm": PptxReader,
-        ".jpg": ImageVisionLLMReader,
-        ".png": ImageVisionLLMReader,
-        ".jpeg": ImageVisionLLMReader,
+        ".jpg": ImageVisionOpenAIReader,
+        ".png": ImageVisionOpenAIReader,
+        ".jpeg": ImageVisionOpenAIReader,
         ".mp3": VideoAudioReader,
         ".mp4": VideoAudioReader,
         ".csv": PandasCSVReader,

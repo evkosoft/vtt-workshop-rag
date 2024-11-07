@@ -2,6 +2,7 @@
 # More information about configuration can be found in the documentation: https://docs.privategpt.dev/
 # Syntax in `private_pgt/settings/settings.py`
 server:
+  log_level: DEBUG
   env_name: ${APP_ENV:prod}
   port: ${PORT:8001}
   cors:
@@ -48,7 +49,7 @@ ui:
 
 llm:
   mode: openai
-  image_to_text_mode: gemini
+  image_to_text_mode: openai
   prompt_style: "llama3"
   # Should be matching the selected model
   max_new_tokens: 512
@@ -58,7 +59,7 @@ llm:
   temperature: 0.1      # The temperature of the model. Increasing the temperature will make the model answer more creatively. A value of 0.1 would be more factual. (Default: 0.1)
 
 rag:
-  similarity_top_k: 2
+  similarity_top_k: 4
   #This value controls how many "top" documents the RAG returns to use in the context.
   similarity_value: 0.75
   #This value is disabled by default.  If you enable this settings, the RAG will only use articles that meet a certain percentage score.
@@ -151,3 +152,9 @@ gemini:
   api_key: ${GOOGLE_API_KEY:}
   model: models/gemini-1.5-flash-002
   embedding_model: models/text-embedding-004
+
+imagegen:
+  leo_api_key: ${LEONARDO_API_KEY:}
+  leo_model_id: "6b645e3a-d64f-4341-a6d8-7a3690fbf042" # Phoenix model
+  leo_preset_style: "DYNAMIC" # Dynamic style
+  vtt_webhook_url: ${VTT_WEBHOOK_URL:http://vtt_backend/genai/image/webhook}

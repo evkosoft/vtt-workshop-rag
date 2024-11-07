@@ -1,13 +1,12 @@
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 import json
 
 from private_gpt.settings.settings import settings
 from llama_index.core.readers.base import BaseReader
-from llama_index.core.schema import Document
-
-from vertexai.generative_models import Image, GenerativeModel
-
+from llama_index.core.schema import Document, ImageNode
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
+from llama_index.core.multi_modal_llms.generic_utils import encode_image
 
 system_prompt = (
     """You are an AI assistant that takes images and generates a short description and a long description for the image.
@@ -18,16 +17,20 @@ system_prompt = (
     """
 )
 
-class ImageVisionLLMReader(BaseReader):
+class ImageVisionOpenAIReader(BaseReader):
     """Image parser.
 
-    Extract short description and long description from images using multimodal LLM.
+    Extract short description and long description from images using OpenAI multimodal LLM (GPT-4V).
 
     """ 
     def __init__(self):                
         # Use Gemini for image processing
-        gemini_settings = settings().gemini
-        self.llm = GenerativeModel(gemini_settings.model)        
+        openai_settings = settings().openai
+        self.llm = OpenAIMultiModal(
+            model=openai_settings.vision_model,
+            api_key=openai_settings.api_key,
+            max_new_tokens=300
+        )
     
     def load_data(
         self,
@@ -37,8 +40,9 @@ class ImageVisionLLMReader(BaseReader):
     ) -> List[Document]:
         """Generate a short description and a long description for the image."""
         # Local image
-        image = Image.load_from_file(file.absolute())
-        response = self.llm.generate_content([system_prompt, image])
+        image = encode_image(file.absolute())
+        image_documents: Sequence[ImageNode] = [ImageNode(image=image)]
+        response = self.llm.complete(system_prompt, image_documents)
 
         # Convert response into ImageDocument
         resp = response.text.replace('\n', '').replace('json', '').replace("```", '')
