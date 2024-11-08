@@ -38,7 +38,7 @@ class GenerateService:
         result = handler.get()        
         return result
     
-    def generate_image_using_leonardo(self, image_desc: str, width: int = 1024, height: int = 1024) -> Any:
+    def generate_image_using_leonardo(self, image_desc: str, width: int, height: int , style: str) -> Any:
         if width%8 != 0 or height%8 != 0:
             raise ValueError("Width and height must be a multiple of 8.")
         
@@ -49,7 +49,7 @@ class GenerateService:
             "width": width,
             "height": height,
             "alchemy": True,
-            "preset_style": self.settings.imagegen.leo_preset_style,
+            "preset_style": style if style is not None else self.settings.imagegen.leo_preset_style,
             "prompt_magic": False
         })
 

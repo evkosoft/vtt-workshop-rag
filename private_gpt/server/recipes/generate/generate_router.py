@@ -15,6 +15,9 @@ SYSTEM_PROMPT = """You will take the user input and output the best possible des
 
 class ImagenInput(BaseModel):
     prompt: str
+    width: int=896
+    height: int=896
+    style: str="DYNAMIC"
 
 class ImagenResponse(BaseModel):
     pass
@@ -47,7 +50,7 @@ def generate_image(request: Request, input: ImagenInput, background_tasks: Backg
     # Validate the OpenAICompletion object
     image_description, rag = _get_image_desc(openai_completion)    
         
-    result = service.generate_image_using_leonardo(image_description)
+    result = service.generate_image_using_leonardo(image_description, input.width, input.height, input.style)
     #if len(result['generated_images']) == 0:        
         #background_tasks.add_task(service.poll_for_generated_images, result['id'])
     result['rag'] = rag
