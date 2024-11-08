@@ -5,9 +5,7 @@ services:
   #-----------------------------------
   pgvector:
     image: pgvector/pgvector:pg16
-    container_name: pgvect-rag
-    ports:
-      - "5433:5432"
+    container_name: pgvect-rag    
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
@@ -32,10 +30,14 @@ services:
       PGPT_MODE: openai
       PGPT_EMBED_MODE: openai      
       DATABASE_HOST: pgvector
-      DATABASE_PORT: 5433
+      DATABASE_PORT: 5432
       DATABASE_NAME: postgres
       DATABASE_USER: postgres
       DATABASE_PASSWORD: postgres
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LEONARDO_API_KEY: ${LEONARDO_API_KEY}
+      VTT_WEBHOOK_URL: ${VTT_WEBHOOK_URL}
+
     depends_on:
       - pgvector 
     networks:

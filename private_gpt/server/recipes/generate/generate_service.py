@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 from typing import Any
 import fal_client
 from injector import inject, singleton
@@ -57,6 +58,9 @@ class GenerateService:
             gen_job = res.object.sd_generation_job
             # Get the generation data
             gen_data = self._fetch_and_extract_gen_data(gen_job.generation_id)
+            if gen_data['status'] == "PENDING":
+                # Poll for generation data
+                gen_data = self.poll_for_generated_images(gen_job.generation_id)
             return gen_data
         else:
             return None 
@@ -86,10 +90,18 @@ class GenerateService:
             }
             
         
-    async def poll_for_generated_images(self, generation_id: str) -> Any:
-        for _ in range(15):
+    async def poll_for_generated_images_async(self, generation_id: str) -> Any:
+        for _ in range(60):
             logger.debug(f"Polling for generation_id={generation_id}")
             gen_data = self._fetch_and_extract_gen_data(generation_id)
             if gen_data['status'] != "PENDING":
                 return await self.vtt_backend_api.post_data(data= {"image_generation": gen_data})
             await asyncio.sleep(1)
+
+    def poll_for_generated_images(self, generation_id: str) -> Any:
+        """ TODO : improve this because it will block the event loop """
+        for _ in range(60):            
+            gen_data = self._fetch_and_extract_gen_data(generation_id)
+            if gen_data['status'] != "PENDING":
+                return gen_data
+            time.sleep(1)

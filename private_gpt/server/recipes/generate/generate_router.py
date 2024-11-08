@@ -48,8 +48,8 @@ def generate_image(request: Request, input: ImagenInput, background_tasks: Backg
     image_description, rag = _get_image_desc(openai_completion)    
         
     result = service.generate_image_using_leonardo(image_description)
-    if len(result['generated_images']) == 0:        
-        background_tasks.add_task(service.poll_for_generated_images, result['id'])
+    #if len(result['generated_images']) == 0:        
+        #background_tasks.add_task(service.poll_for_generated_images, result['id'])
     result['rag'] = rag
     return result
 
