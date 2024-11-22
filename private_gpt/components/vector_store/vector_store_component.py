@@ -8,6 +8,7 @@ from llama_index.core.vector_stores.types import (
     FilterCondition,
     MetadataFilter,
     MetadataFilters,
+    FilterOperator
 )
 
 from private_gpt.open_ai.extensions.context_filter import ContextFilter
@@ -19,12 +20,16 @@ logger = logging.getLogger(__name__)
 
 def _doc_id_metadata_filter(
     context_filter: ContextFilter | None,
-) -> MetadataFilters:
+) -> MetadataFilters:    
     filters = MetadataFilters(filters=[], condition=FilterCondition.OR)
-
-    if context_filter is not None and context_filter.docs_ids is not None:
-        for doc_id in context_filter.docs_ids:
-            filters.filters.append(MetadataFilter(key="doc_id", value=doc_id))
+    if context_filter is not None:
+        if context_filter.docs_ids is not None:            
+            for doc_id in context_filter.docs_ids:
+                filters.filters.append(MetadataFilter(key="doc_id", value=doc_id))
+        elif context_filter.tag is not None:
+            filters = MetadataFilters(filters=[
+                MetadataFilter(key="tag", operator=FilterOperator.EQ, value=context_filter.tag)
+            ])
 
     return filters
 

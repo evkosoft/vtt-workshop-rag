@@ -1,4 +1,5 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
+from private_gpt.open_ai.extensions.context_filter import ContextFilter
 from private_gpt.open_ai.openai_models import OpenAICompletion
 from private_gpt.server.completions.completions_router import CompletionsBody, prompt_completion
 from private_gpt.server.recipes.generate.generate_service import GenerateService
@@ -15,9 +16,10 @@ SYSTEM_PROMPT = """You will take the user input and output the best possible des
 
 class ImagenInput(BaseModel):
     prompt: str
+    tag: str
     width: int=896
     height: int=896
-    style: str="DYNAMIC"
+    style: str="DYNAMIC"    
 
 class ImagenResponse(BaseModel):
     pass
@@ -42,13 +44,14 @@ def generate_image(request: Request, input: ImagenInput, background_tasks: Backg
     body= CompletionsBody(prompt = f'USER_PROMPT:"""{input.prompt}"""',
                           system_prompt = SYSTEM_PROMPT, 
                           use_context = True,
+                          context_filter = ContextFilter(docs_ids=None, tag = input.tag.upper()),
                           stream = False)
 
     # TODO : make it async here
     openai_completion: OpenAICompletion = prompt_completion(request, body)    
 
     # Validate the OpenAICompletion object
-    image_description, rag = _get_image_desc(openai_completion)    
+    image_description, rag = _get_image_desc(openai_completion)
         
     result = service.generate_image_using_leonardo(image_description, input.width, input.height, input.style)
     #if len(result['generated_images']) == 0:        

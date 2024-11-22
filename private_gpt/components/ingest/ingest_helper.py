@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+import re
 
 from llama_index.core.readers import StringIterableReader
 from llama_index.core.readers.base import BaseReader
@@ -75,8 +76,19 @@ class IngestionHelper:
         file_name: str, file_data: Path
     ) -> list[Document]:
         documents = IngestionHelper._load_file_to_documents(file_name, file_data)
+        # Get the filename tag prefix
+        parts = re.split(r'[\\/.]', file_name)
+        tag = None
+        if parts[-2].startswith("CHAR_"):
+            tag = "CHARACTER_ART"
+        elif parts[-2].startswith("MAP_"):
+            tag = "MAP"
+        elif parts[-2].startswith("CAMP_"):
+            tag = "CAMPAIGN"
         for document in documents:
             document.metadata["file_name"] = file_name
+            if tag:
+                document.metadata["tag"] = tag
         IngestionHelper._exclude_metadata(documents)
         return documents
 
@@ -111,4 +123,4 @@ class IngestionHelper:
             # We don't want the Embeddings search to receive this metadata
             document.excluded_embed_metadata_keys = ["doc_id"]
             # We don't want the LLM to receive these metadata in the context
-            document.excluded_llm_metadata_keys = ["file_name", "doc_id", "page_label", "file_path", "short_description"]
+            document.excluded_llm_metadata_keys = ["file_name", "doc_id", "page_label", "file_path", "short_description", "tag"]

@@ -41,6 +41,12 @@ dev-windows:
 dev:
 	PYTHONUNBUFFERED=1 PGPT_PROFILES=local poetry run python -m uvicorn private_gpt.main:app --reload --port 8001
 
+docker:
+	docker-compose up -d
+
+docker-build:
+	docker-compose up --build vtt-workshop-rag -d
+
 ########################################################################################################################
 # Misc
 ########################################################################################################################
