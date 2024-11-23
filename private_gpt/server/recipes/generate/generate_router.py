@@ -16,7 +16,7 @@ SYSTEM_PROMPT = """You will take the user input and output the best possible des
 
 class ImagenInput(BaseModel):
     prompt: str
-    tag: str
+    tags: list[str]
     width: int=896
     height: int=896
     style: str="DYNAMIC"    
@@ -44,7 +44,7 @@ def generate_image(request: Request, input: ImagenInput, background_tasks: Backg
     body= CompletionsBody(prompt = f'USER_PROMPT:"""{input.prompt}"""',
                           system_prompt = SYSTEM_PROMPT, 
                           use_context = True,
-                          context_filter = ContextFilter(docs_ids=None, tag = input.tag.upper()),
+                          context_filter = ContextFilter(docs_ids=None, tags = set(input.tags)),
                           stream = False)
 
     # TODO : make it async here

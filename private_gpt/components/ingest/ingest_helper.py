@@ -77,20 +77,33 @@ class IngestionHelper:
     ) -> list[Document]:
         documents = IngestionHelper._load_file_to_documents(file_name, file_data)
         # Get the filename tag prefix
-        parts = re.split(r'[\\/.]', file_name)
-        tag = None
-        if parts[-2].startswith("CHAR_"):
-            tag = "CHARACTER_ART"
-        elif parts[-2].startswith("MAP_"):
-            tag = "MAP"
-        elif parts[-2].startswith("CAMP_"):
-            tag = "CAMPAIGN"
+        tags = IngestionHelper._extract_tags(file_name)
+
         for document in documents:
             document.metadata["file_name"] = file_name
-            if tag:
-                document.metadata["tag"] = tag
+            if len(tags) > 0:
+                document.metadata["tags"] = list(tags)
         IngestionHelper._exclude_metadata(documents)
         return documents
+
+    @staticmethod
+    def _extract_tags(file_name):
+        parts = re.split(r'[\\/.]', file_name)
+        tags = set()
+        # generation type
+        if parts[-2].count("CHAR_") > 0:
+            tags.add("CHARACTER_ART")
+        elif parts[-2].count("MAP_") > 0:
+            tags.add("MAP")
+        elif parts[-2].count("CAMP_") > 0:
+            tags.add("CAMP")
+        
+        # genre
+        if parts[-2].count("SF_") > 0:
+            tags.add("SCI-FI")
+        elif parts[-2].count("FAN_") > 0:
+            tags.add("FANTASY")
+        return tags
 
     @staticmethod
     def _load_file_to_documents(file_name: str, file_data: Path) -> list[Document]:

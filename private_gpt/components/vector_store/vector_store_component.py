@@ -26,10 +26,10 @@ def _doc_id_metadata_filter(
         if context_filter.docs_ids is not None:            
             for doc_id in context_filter.docs_ids:
                 filters.filters.append(MetadataFilter(key="doc_id", value=doc_id))
-        elif context_filter.tag is not None:
-            filters = MetadataFilters(filters=[
-                MetadataFilter(key="tag", operator=FilterOperator.EQ, value=context_filter.tag)
-            ])
+        elif context_filter.tags is not None:
+            filters = MetadataFilters(filters=[], condition=FilterCondition.AND)
+            for tag in context_filter.tags:
+                filters.filters.append(MetadataFilter(key="tags", operator="contains", value=tag))
 
     return filters
 

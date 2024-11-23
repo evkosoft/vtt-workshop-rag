@@ -47,6 +47,9 @@ docker:
 docker-build:
 	docker-compose up --build vtt-workshop-rag -d
 
+pgvect:
+	docker run -d --name pgvect-dev  -p 5433:5432 -e POSTGRES_DB=postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres pgvector/pgvector:pg16
+
 ########################################################################################################################
 # Misc
 ########################################################################################################################

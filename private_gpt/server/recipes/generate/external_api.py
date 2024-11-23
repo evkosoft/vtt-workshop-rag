@@ -5,7 +5,7 @@ from fastapi import HTTPException
 class ExternalAPIService:
     def __init__(self, base_url: str):
         self.base_url = base_url
-        self.timeout = httpx.Timeout(30.0, connect=5.0, read=20.0, write=5.0)
+        self.timeout = httpx.Timeout(60.0, connect=10.0, read=40.0, write=10.0)
 
     async def fetch_data(self, endpoint: str, params: dict = None):
         async with httpx.AsyncClient(timeout=self.timeout) as client:
