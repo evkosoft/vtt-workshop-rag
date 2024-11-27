@@ -412,7 +412,7 @@ class RagSettings(BaseModel):
         description="This value controls the number of documents returned by the RAG pipeline or considered for reranking if enabled.",
     )
     similarity_value: float = Field(
-        0.75,
+        0.8,
         #None,
         description="If set, any documents retrieved from the RAG must meet a certain match score. Acceptable values are between 0 and 1.",
     )
