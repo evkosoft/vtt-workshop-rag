@@ -1,0 +1,6 @@
+
+$Env:PGPT_PROFILES="openai"
+$Env:OPENAI_API_KEY=
+$Env:LEONARDO_API_KEY=
+$Env:VTT_WEBHOOK_URL="http://127.0.0.1:8000/genai/image/webhook"
+$Env:DATABASE_PORT=5433

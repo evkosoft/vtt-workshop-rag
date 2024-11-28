@@ -1,3 +1,17 @@
+# VTT RAG
+
+## Run the system
+To run the RAG system, 
+- Make a copy of the .env.example file and rename it as .env
+- In the .env file, enter the API keys for OpenAI and Leonardo
+- Then execute the docker-compose command: `docker-compose up -d`
+
+## Rebuild after code change
+If you change the code, you must stop the docker containers (and delete the vtt-workshop-rag service) and relaunch them using a new build with:
+
+`docker-compose up --build vtt-workshop-rag -d`
+
+#
 # 🔒 PrivateGPT 📑
 
 [![Tests](https://github.com/zylon-ai/private-gpt/actions/workflows/tests.yml/badge.svg)](https://github.com/zylon-ai/private-gpt/actions/workflows/tests.yml?query=branch%3Amain)
