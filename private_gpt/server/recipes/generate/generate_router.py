@@ -1,18 +1,14 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from private_gpt.open_ai.extensions.context_filter import ContextFilter
-from private_gpt.open_ai.openai_models import OpenAICompletion
+from private_gpt.open_ai.openai_models import OpenAICompletion, OpenAIMessage
 from private_gpt.server.completions.completions_router import CompletionsBody, prompt_completion
 from private_gpt.server.recipes.generate.generate_service import GenerateService
+from private_gpt.server.recipes.generate.system_prompts import SystemPrompts
 from pydantic import BaseModel
 
 from private_gpt.server.utils.auth import authenticated
 
 generate_router = APIRouter(prefix="/v1/generate", dependencies=[Depends(authenticated)])
-
-SYSTEM_PROMPT = """You will take the user input and output the best possible description for an artist to generate an image from your description. 
-    The image should first and foremost represent what is stated in the 'USER_PROMPT' field, with some added details from the context.
-    Give some details but keep it evocative. Do not use the word "or" for description. For the background, choose only one description 
-    that best captures the mood of the input. Only provide the whole description as one paragraph and no other metadata."""
 
 class ImagenInput(BaseModel):
     prompt: str
@@ -24,6 +20,13 @@ class ImagenInput(BaseModel):
 class ImagenResponse(BaseModel):
     pass
 
+class TextgenInput(BaseModel):
+    prompt: str
+    messages: list[OpenAIMessage]
+    tags: list[str]
+
+class TextgenResponse(BaseModel):
+    pass
 
 @generate_router.post(
     "/image",
@@ -32,17 +35,16 @@ class ImagenResponse(BaseModel):
     responses={200: {"model": ImagenResponse}},
     tags=["Recipes"],
 )
-def generate_image(request: Request, input: ImagenInput, background_tasks: BackgroundTasks) :
+def generate_image(request: Request, input: ImagenInput) :
     """
     Generate an image based on the provided input.
-    This will return an image generation job, but maybe not the generated image itself.
-    The generated image will be returned in a background task.
+    This will return an image generation job, as well as the generated image URL
     """
     service: GenerateService = request.state.injector.get(GenerateService)
     
     # First do a text completion
     body= CompletionsBody(prompt = f'USER_PROMPT:"""{input.prompt}"""',
-                          system_prompt = SYSTEM_PROMPT, 
+                          system_prompt = SystemPrompts.IMAGEN_SYSTEM_PROMPT, 
                           use_context = True,
                           context_filter = ContextFilter(docs_ids=None, tags = set(input.tags)),
                           stream = False)
@@ -82,3 +84,22 @@ def _get_image_desc(openai_completion):
     return image_description, rag
 
     
+@generate_router.post(
+    "/text",
+    response_model=None,
+    summary="Text Generation",
+    responses={200: {"model": TextgenResponse}},
+    tags=["Recipes"],
+)
+def generate_text(request: Request, input: TextgenInput) :    
+    # Do a text completion
+    body= CompletionsBody(
+                          prompt = f'{input.prompt}',
+                          system_prompt = SystemPrompts.TEXTGEN_PROMPT,
+                         )
+
+    # TODO : make it async here
+    openai_completion: OpenAICompletion = prompt_completion(request, body)    
+
+    # Validate the OpenAICompletion object
+    return openai_completion
